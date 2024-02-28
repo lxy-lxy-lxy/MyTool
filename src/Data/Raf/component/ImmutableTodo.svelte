@@ -5,7 +5,6 @@
     import flash from './flash.js';
 
     export let todo;
-    export let toggle;
 
     let div;
 
@@ -21,6 +20,6 @@
     }
 </style>
 
-<div bind:this={div} on:click>
+<div bind:this={div} on:click on:keyup>
     {todo.done ? '👍': ''} {todo.text}
 </div>
