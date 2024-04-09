@@ -6,8 +6,8 @@
     let isActive = false
     getLocation()
 
-    function getLocation() {
-        currentPath = location.hash
+    function getLocation(path) {
+        currentPath = path || location.hash
     }
 
     function getElements() {
@@ -49,8 +49,8 @@
                 {#each sideMenus as sideMenu, i}
                     <li class="pure-menu-item">
                         <a href={`#${sideMenu.path}`}
-                           on:click={getLocation}
-                           class={`pure-menu-link ${currentPath === `#${sideMenu.path}` ? "menu-item-divided pure-menu-selected" : ""}`}>
+                           on:click={() => getLocation(sideMenu.path)}
+                           class={`pure-menu-link ${currentPath === sideMenu.path ? "menu-item-divided pure-menu-selected" : ""}`}>
                             {sideMenu.name}
                         </a>
                     </li>
@@ -105,7 +105,7 @@
         margin: 0 auto;
         padding: 0 2em;
         max-width: 1600px;
-        margin-bottom: 50px;
+        /* margin-bottom: 50px;*/
         line-height: 1.6em;
     }
 
@@ -155,9 +155,8 @@
     /*
     Change color of the anchor links on hover/focus.
     */
-    #menu .pure-menu li a:hover,
-    #menu .pure-menu li a:focus {
-        background: #333;
+    #menu .pure-menu li a:hover {
+        background: #565d64;
     }
 
     /*
@@ -209,8 +208,7 @@
         padding: 2.1em 1.6em;
     }
 
-    .menu-link:hover,
-    .menu-link:focus {
+    .menu-link:hover {
         background: #000;
     }
 

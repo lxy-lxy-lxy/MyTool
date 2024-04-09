@@ -8,7 +8,7 @@
         value: getContent()
     }));
 
-    const userVisibleHeight = (document.documentElement.clientHeight || 931) - 16;
+    const userVisibleHeight = (document.documentElement.clientHeight || 931) - 66;
     const estimateRowHeight = 81;
     const bufferSize = 8;
 
