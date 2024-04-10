@@ -23,8 +23,8 @@ export const sideMenus = [
         path: "/tool/Raf",
         name: "数据分片"
     },
-    // {
-    //     path: "/scene/Keyword",
-    //     name: "关键词屏蔽"
-    // }
+    {
+        path: "/scene/Keyword",
+        name: "关键词屏蔽"
+    }
 ]

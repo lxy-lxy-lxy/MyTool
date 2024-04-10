@@ -1,8 +1,8 @@
 <script>
     import {onMount} from "svelte";
 
-    const dirtyTextArr = ['日本人', '日本鬼子', '日本男人']
-    console.log('敏感词个数 -> ', dirtyTextArr.length)
+    let keywordArr = ['渣渣', '渣滓', "垃圾", '菜鸡', '敏感词', '太拉垮了', '头盖骨', '鸡你太美', 'fuck you']
+
     const dirtyRoot = new Map()
     const buildMap = function (text) {
         let dirtyMap = dirtyRoot
@@ -37,13 +37,14 @@
             }
         }
     }
-    for (let b = 0; b < dirtyTextArr.length; b++) {
-        buildMap(dirtyTextArr[b])
+
+    function handleRoot() {
+        for (let b = 0; b < keywordArr.length; b++) {
+            buildMap(keywordArr[b])
+        }
     }
 
-    console.log('整理为map结构 -> ', dirtyRoot)
-
-    const dirtyCheckDFA = function (word){
+    const dirtyCheckDFA = function (word, lastIndex) {
         if (!word || !dirtyRoot) {
             return {dirty: false}
         }
@@ -53,7 +54,6 @@
         let end = 0
         let origin = true
         for (let i = 0; i < word.length; i++) {
-            // console.log(word[i])
             const aMap = dirtyMap.get(word[i])
             if (aMap) {
                 // 在敏感词中匹配到该字符，且该字符为最后一个字
@@ -70,7 +70,6 @@
                     if (origin) {
                         start = i
                     }
-                    // console.log(aMap)
                     dirtyMap = aMap
                     origin = false
                     if (i === word.length - 1) {
@@ -91,49 +90,47 @@
             }
         }
         if (dirty) {
-            return { dirty: true, start, end}
-        }
-        return {dirty: false}
-    }
-
-    const dirtyCheckLoop  = function (word) {
-        if (!word) {
-            return {dirty: false}
-        }
-        for (let a = 0; a < dirtyTextArr.length; a++) {
-            const startIndex = word.indexOf(dirtyTextArr[a])
-            if (startIndex !== -1) {
-                return {dirty: true, start: startIndex, end: startIndex + dirtyTextArr[a].length - 1}
+            return {
+                [start + lastIndex]: {dirty: true, start: start + lastIndex, end: end + lastIndex},
+                ...dirtyCheckDFA(word.slice(end + 1), end + lastIndex + 1)
             }
         }
-        return {dirty: false}
+        return {}
     }
 
     function submit() {
-        console.log('**********************')
         const text = document.querySelector('#text').value
         const textLength = text.length
-        // console.log('待检测字符串长度',)
+        const checkResult = JSON.stringify(dirtyCheckDFA(text, 0))
 
-        console.time('dirtyCheckDFA')
-        const checkResult = JSON.stringify(dirtyCheckDFA(text))
-        console.timeEnd('dirtyCheckDFA')
+        document.querySelector('.output').innerHTML = `输入字符串长度:${textLength}<br>dirtyCheckDFA运行结果:${checkResult}`
+    }
 
-
-        console.time('dirtyCheckLoop')
-        const checkResult2 = JSON.stringify(dirtyCheckLoop(text))
-        console.timeEnd('dirtyCheckLoop')
-        document.querySelector('.output').innerHTML = `输入字符串长度:${textLength}<br>dirtyCheckDFA运行结果:${checkResult}<br>dirtyCheckLoop运行结果:${checkResult2}`
+    function updateKeyword(e) {
+        keywordArr = e.target.value.trim().replaceAll("，", ",").split(",")
+        handleRoot()
     }
 
     onMount(() => {
-        document.getElementById("button")?.addEventListener('click', submit)
+        handleRoot()
+        document.getElementById("keyword").value = keywordArr.join(",")
     })
 </script>
 
-<textarea id="text"></textarea>
-<div>
-    <button id="button">提交</button>
-</div>
+<form class="pure-form pure-form-stacked">
+    <div class="pure-g">
+        <div class="pure-u-1">
+            <label for="keyword">关键词库</label>
+            <textarea id="keyword" class="pure-u-1" on:blur={updateKeyword}></textarea>
+        </div>
+        <div class="pure-u-1">
+            <label for="text">内容</label>
+            <textarea id="text" class="pure-u-1"></textarea>
+        </div>
+    </div>
+    <div>
+        <button on:click={submit}>提交</button>
+    </div>
+</form>
 
 <div class="output"></div>
